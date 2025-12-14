@@ -1,0 +1,39 @@
+name: Deploy to OpenShift
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check oc
+        id: check_oc
+        continue-on-error: true
+        run: oc version --client
+
+      - name: Install oc (if missing)
+        if: steps.check_oc.outcome != 'success'
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: "4.20"
+
+      - name: oc version
+        run: oc version --client
+
+      - name: oc login
+        run: |
+          oc login \
+            -u "${{ secrets.OCP_USER }}" \
+            -p "${{ secrets.OCP_PASS }}" \
+            --insecure-skip-tls-verify \
+            --server="${{ secrets.OCP_SERVER }}"
+
+      - name: oc project
+        run: oc project "${{ secrets.OCP_NAMESPACE }}"
+
+      - name: oc apply
+        run: oc apply -f openshift/
