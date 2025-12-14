@@ -29,4 +29,4 @@ jobs:
       - name: Push the images
         run: |
           docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
-          docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
