@@ -3,6 +3,9 @@ on:
     branches:
     - main
 
+permissions:
+  contents: write
+  
 jobs:
   frontend:
     name: Build frontend
@@ -12,5 +15,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build
-        run: cd frontend && docker build -t frontend:${{ github.sha }} .
- 
+        run: | 
+          cd frontend 
+          docker build -t frontend:${{ github.sha }} .
+      
+      - name: Tag the image
+        run: |
+          docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
+          docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+      - name: Push the images
+        run: |
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
