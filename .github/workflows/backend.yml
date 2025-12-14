@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+    - main
+
+permissions:
+  contents: write
+  packages: write
+  
+jobs:
+  frontend:
+    name: Build Backend
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: | 
+          cd backend 
+          docker build -t backend:${{ github.sha }} .
+      
+      - name: Tag the image
+        run: |
+          docker tag backend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}
+          docker tag backend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
+      - name: Login docker
+        run: docker login --username macfatty --password ${{ Secrets.DOCKER_TOKEN }} ghcr.io
+      
+      - name: Push the images
+        run: |
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
