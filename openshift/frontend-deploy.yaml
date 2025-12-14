@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guestbook-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guestbook-frontend
+  template:
+    metadata:
+      labels:
+        app: guestbook-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guestbook-frontend
+spec:
+  selector:
+    app: guestbook-frontend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+
