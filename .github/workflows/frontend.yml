@@ -23,6 +23,9 @@ jobs:
         run: |
           docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
           docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+      - name: Login docker
+        run: docker login --username macfatty --password ${{ secret.DOCKER_TOKEN }} ghcr.io
+      
       - name: Push the images
         run: |
           docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
