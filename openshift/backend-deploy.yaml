@@ -15,6 +15,7 @@ spec:
       containers:
         - name: backend
           image: ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
