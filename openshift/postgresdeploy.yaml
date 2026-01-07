@@ -15,10 +15,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: lvms-vg1
   resources:
     requests:
       storage: 2Gi
-    storageClassName: lvms-vg1
 ---
 apiVersion: apps/v1
 kind: Deployment

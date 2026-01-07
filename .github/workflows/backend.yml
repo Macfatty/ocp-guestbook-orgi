@@ -1,33 +1,57 @@
+name: Build Backend + Update GitOps manifest
+
 on:
   push:
     branches:
-    - main
+      - main
 
 permissions:
   contents: write
   packages: write
-  
+
 jobs:
-  frontend:
+  build_backend:
     name: Build Backend
     runs-on: ubuntu-22.04
+    if: github.actor != 'github-actions[bot]'
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
-        run: | 
-          cd backend 
+      - name: Build backend image
+        run: |
+          cd backend
           docker build -t backend:${{ github.sha }} .
-      
-      - name: Tag the image
+
+      - name: Tag backend images
         run: |
           docker tag backend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}
           docker tag backend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
-      - name: Login docker
-        run: docker login --username macfatty --password ${{ Secrets.DOCKER_TOKEN }} ghcr.io
-      
-      - name: Push the images
+
+      - name: Login to GHCR
+        run: echo "${{ Secrets.DOCKER_TOKEN }}" | docker login ghcr.io -u macfatty --password-stdin
+
+      - name: Push backend images
         run: |
           docker push ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}
           docker push ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
+
+      - name: Update backend image in manifest (GitOps)
+        run: |
+          sed -i "s#ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest#ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}#g" openshift/backend-deploy.yaml
+
+      - name: Commit and push manifest update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No manifest changes to commit"
+            exit 0
+          fi
+
+          git add openshift/backend-deploy.yaml
+          git commit -m "gitops: backend -> ${{ github.sha }}"
+          git pull --rebase origin main
+          git push
+

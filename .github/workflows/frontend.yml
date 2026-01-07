@@ -1,32 +1,57 @@
+name: Build Frontend + Update GitOps manifest
+
 on:
   push:
     branches:
-    - main
+      - main
 
 permissions:
   contents: write
-  
+  packages: write
+
 jobs:
-  frontend:
-    name: Build frontend
+  build_frontend:
+    name: Build Frontend
     runs-on: ubuntu-22.04
+    if: github.actor != 'github-actions[bot]'
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
-        run: | 
-          cd frontend 
+      - name: Build frontend image
+        run: |
+          cd frontend
           docker build -t frontend:${{ github.sha }} .
-      
-      - name: Tag the image
+
+      - name: Tag frontend images
         run: |
           docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
           docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
-      - name: Login docker
-        run: docker login --username macfatty --password ${{ Secrets.DOCKER_TOKEN }} ghcr.io
-      
-      - name: Push the images
+
+      - name: Login to GHCR
+        run: echo "${{ Secrets.DOCKER_TOKEN }}" | docker login ghcr.io -u macfatty --password-stdin
+
+      - name: Push frontend images
         run: |
           docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
           docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+
+      - name: Update frontend image in manifest (GitOps)
+        run: |
+          sed -i "s#ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest#ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}#g" openshift/frontend-deploy.yaml
+
+      - name: Commit and push manifest update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No manifest changes to commit"
+            exit 0
+          fi
+
+          git add openshift/frontend-deploy.yaml
+          git commit -m "gitops: frontend -> ${{ github.sha }}"
+          git pull --rebase origin main
+          git push
+
