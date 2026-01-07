@@ -1,0 +1,74 @@
+name: Build images + GitOps manifest update
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build_and_update:
+    name: Build backend/frontend + update manifests
+    runs-on: ubuntu-22.04
+    if: github.actor != 'github-actions[bot]'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: echo "${{ Secrets.DOCKER_TOKEN }}" | docker login ghcr.io -u macfatty --password-stdin
+
+      # ---- Backend ----
+      - name: Build backend
+        run: |
+          cd backend
+          docker build -t backend:${{ github.sha }} .
+
+      - name: Tag & push backend
+        run: |
+          docker tag backend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}
+          docker tag backend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest
+
+      # ---- Frontend ----
+      - name: Build frontend
+        run: |
+          cd frontend
+          docker build -t frontend:${{ github.sha }} .
+
+      - name: Tag & push frontend
+        run: |
+          docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
+          docker tag frontend:${{ github.sha }} ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}
+          docker push ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+
+      # ---- Update GitOps manifests (one commit) ----
+      - name: Update manifests to use commit sha
+        run: |
+          sed -i "s#ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest#ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}#g" openshift/backend-deploy.yaml
+          sed -i "s#ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest#ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}#g" openshift/frontend-deploy.yaml
+
+      - name: Commit and push manifest update
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No manifest changes to commit"
+            exit 0
+          fi
+
+          git add openshift/backend-deploy.yaml openshift/frontend-deploy.yaml
+          git commit -m "gitops: update images -> ${{ github.sha }}"
+
+          # Rebase to stay fast-forward in case something changed on main
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
