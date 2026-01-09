@@ -5,3 +5,4 @@ resources:
   - postgresdeploy.yaml
   - backend-deploy.yaml
   - frontend-deploy.yaml
+  - route-guestbook-frontend.yaml
