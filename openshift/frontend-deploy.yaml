@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: guestbook-frontend
+  name: ayuub-guestbook-frontend
 spec:
   replicas: 1
   selector:
@@ -29,7 +29,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: guestbook-frontend
+  name: ayuub-guestbook-frontend
 spec:
   selector:
     app: guestbook-frontend

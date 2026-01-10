@@ -1,11 +1,11 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: guestbook-frontend
+  name: ayuub-guestbook-frontend-route
 spec:
   to:
     kind: Service
-    name: guestbook-frontend
+    name: ayuub-guestbook-frontend
   port:
     targetPort: http
 
