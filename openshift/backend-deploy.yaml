@@ -26,17 +26,17 @@ spec:
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: ayuub-postgres-secret
                   key: POSTGRESQL_DATABASE
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: ayuub-postgres-secret
                   key: POSTGRESQL_USERNAME
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: ayuub-postgres-secret
                   key: POSTGRESQL_PASSWORD
           resources:
             requests:
@@ -52,7 +52,7 @@ metadata:
   name: ayuub-backend
 spec:
   selector:
-    app: guestbook-backend
+    app: ayuub-guestbook-backend
   ports:
     - name: http
       port: 8080
