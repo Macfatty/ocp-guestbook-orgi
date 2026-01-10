@@ -50,8 +50,8 @@ jobs:
       # ---- Update GitOps manifests (one commit) ----
       - name: Update manifests to use commit sha
         run: |
-          sed -i "s#ghcr.io/macfatty/ocp-guestbook-orgi-backend:latest#ghcr.io/macfatty/ocp-guestbook-orgi-backend:${{ github.sha }}#g" openshift/backend-deploy.yaml
-          sed -i "s#ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest#ghcr.io/macfatty/ocp-guestbook-orgi-frontend:${{ github.sha }}#g" openshift/frontend-deploy.yaml
+          sed -i "s#\(ghcr.io/macfatty/ocp-guestbook-orgi-backend:\).*#\1${{ github.sha }}#g" openshift/backend-deploy.yaml
+          sed -i "s#\(ghcr.io/macfatty/ocp-guestbook-orgi-frontend:\).*#\1${{ github.sha }}#g" openshift/frontend-deploy.yaml
 
       - name: Commit and push manifest update
         run: |
