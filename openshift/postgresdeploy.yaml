@@ -28,7 +28,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: ayuub-postgres
   template:
     metadata:
       labels:
@@ -43,17 +43,17 @@ spec:
             - name: POSTGRESQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: ayuub-postgres-secret
                   key: POSTGRESQL_DATABASE
             - name: POSTGRESQL_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: ayuub-postgres-secret
                   key: POSTGRESQL_USERNAME
             - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: ayuub-postgres-secret
                   key: POSTGRESQL_PASSWORD
           resources:
             requests:
@@ -70,7 +70,7 @@ spec:
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
-            claimName: postgres-pvc
+            claimName: ayuub-postgres-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -78,7 +78,7 @@ metadata:
   name: ayuub-postgres
 spec:
   selector:
-    app: postgres
+    app: ayuub-postgres
   ports:
     - name: tcp-5432
       port: 5432
