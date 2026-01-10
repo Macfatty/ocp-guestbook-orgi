@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/macfatty/ocp-guestbook-orgi-frontend:latest
+          image: ghcr.io/macfatty/ocp-guestbook-orgi-frontend:4148d1f5c746619cd6183f28a9cfe832d4ad173e
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
