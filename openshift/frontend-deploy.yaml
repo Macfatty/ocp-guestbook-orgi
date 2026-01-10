@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: guestbook-frontend
+      app: ayuub-guestbook-frontend
   template:
     metadata:
       labels:
-        app: guestbook-frontend
+        app: ayuub-guestbook-frontend
     spec:
       containers:
         - name: frontend
@@ -32,7 +32,7 @@ metadata:
   name: ayuub-guestbook-frontend
 spec:
   selector:
-    app: guestbook-frontend
+    app: ayuub-guestbook-frontend
   ports:
     - name: http
       port: 8080

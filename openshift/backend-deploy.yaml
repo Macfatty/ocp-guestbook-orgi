@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: guestbook-backend
+      app: ayuub-guestbook-backend
   template:
     metadata:
       labels:
-        app: guestbook-backend
+        app: ayuub-guestbook-backend
     spec:
       containers:
         - name: backend
@@ -20,7 +20,7 @@ spec:
             - containerPort: 8080
           env:
             - name: DB_HOST
-              value: postgres
+              value: ayuub-postgres
             - name: DB_PORT
               value: "5432"
             - name: DB_NAME

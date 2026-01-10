@@ -28,11 +28,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: ayuub-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: ayuub-postgres
     spec:
       containers:
         - name: postgres
@@ -78,7 +78,7 @@ metadata:
   name: ayuub-postgres
 spec:
   selector:
-    app: postgres
+    app: ayuub-postgres
   ports:
     - name: tcp-5432
       port: 5432
